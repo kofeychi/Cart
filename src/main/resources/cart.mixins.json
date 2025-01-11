@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.kofeychi.Cart.Mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "TestTntMixin"
+  ],
+  "client": [
+    "CameraMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
