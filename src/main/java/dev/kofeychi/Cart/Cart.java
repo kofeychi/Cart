@@ -8,14 +8,19 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.kofeychi.Cart.SSModule.EnabledAffections;
 import dev.kofeychi.Cart.SSModule.SSHandler;
+import dev.kofeychi.Cart.SSModule.SSPacket;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.render.Camera;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.util.Identifier;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +29,16 @@ public class Cart implements ModInitializer, ClientModInitializer {
     public static Logger LOGGER = LoggerFactory.getLogger("Cart");
     public static Gson GSON = new GsonBuilder().setLenient().setPrettyPrinting().create();
     public static CartConf CONFIG;
+    public static MinecraftServer SERVER;
     public static boolean isUsingTntMixin=false;
+    public static Identifier of(String n){
+        return Identifier.of("cart",n);
+    }
     @Override
     public void onInitialize() {
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> SERVER = server);
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> SERVER = null);
+        PayloadTypeRegistry.playS2C().register(SSPacket.ID, SSPacket.CODEC);
         AutoConfig.register(CartConf.class, GsonConfigSerializer::new);
         CONFIG = AutoConfig.getConfigHolder(CartConf.class).getConfig();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

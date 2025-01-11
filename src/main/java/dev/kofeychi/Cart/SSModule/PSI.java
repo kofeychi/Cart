@@ -7,17 +7,18 @@ import org.joml.Vector3f;
 import static dev.kofeychi.Cart.SSModule.SSHandler.Camera;
 
 public class PSI extends SSInstance{
+    @Override
+    public String getType(){return typee;}
+    public String typee = "PSI";
     public final Vec3d position;
     public float falloffDistance;
     public float maxDistance;
-    public final Easing falloffEasing;
 
-    public PSI(int d, SSModes.SSEase easeMode, SSModes.SSRng rngMode, EnabledAffections af, Vec3d position, float falloffDistance, float maxDistance, Easing falloffEasing) {
+    public PSI(int d, SSModes.SSEase easeMode, SSModes.SSRng rngMode, EnabledAffections af, Vec3d position, float falloffDistance, float maxDistance) {
         super(d, easeMode, rngMode, af);
         this.position = position;
         this.falloffDistance = falloffDistance;
         this.maxDistance = maxDistance;
-        this.falloffEasing = falloffEasing;
     }
 
     @Override
@@ -40,6 +41,6 @@ public class PSI extends SSInstance{
     }
     @Override
     public String toStringy() {
-        return "PSI{progress=" + progress +", duration=" + duration + ", InCurve=" + InCurve.name + ", OutCurve=" + OutCurve.name + ", LinearCurve=" + LinearCurve.name + ", EaseMode=" + EaseMode.name() + ", RngMode=" + RngMode.name() + ", PerlinSpeedI=" + PerlinSpeedI + ", AffectedValues=" + AffectedValues.toString() + ", Rot1=" + Rot1.toString() + ", Rot2=" + Rot2.toString() + ", Pos1=" + Pos1.toString() + ", Pos2=" + Pos2.toString() + ", Position=" + position.toString() + ", Falloff=" + falloffDistance +", MaxDistance=" + maxDistance +", FalloffEasing=" + falloffEasing.name +'}';
+        return "PSI{progress=" + progress +", duration=" + duration + ", InCurve=" + InCurve + ", OutCurve=" + OutCurve + ", LinearCurve=" + LinearCurve + ", EaseMode=" + EaseMode.name() + ", RngMode=" + RngMode.name() + ", PerlinSpeedI=" + PerlinSpeedI + ", AffectedValues=" + AffectedValues.toString() + ", Rot1=" + Rot1.toString() + ", Rot2=" + Rot2.toString() + ", Pos1=" + Pos1.toString() + ", Pos2=" + Pos2.toString() + ", Position=" + position.toString() + ", Falloff=" + falloffDistance +", MaxDistance=" + maxDistance +'}';
     }
 }

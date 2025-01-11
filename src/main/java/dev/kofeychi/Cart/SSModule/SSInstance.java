@@ -7,10 +7,12 @@ import net.minecraft.util.math.random.Random;
 import org.joml.Vector3f;
 
 public class SSInstance {
+    public String getType(){return type;}
+    public String type = "SSInstance";
     public int progress = 0,duration = 0;
-    public Easing InCurve = Easing.LINEAR;
-    public Easing OutCurve = Easing.LINEAR;
-    public Easing LinearCurve = Easing.LINEAR;
+    public String InCurve = Easing.LINEAR.name;
+    public String OutCurve = Easing.LINEAR.name;
+    public String LinearCurve = Easing.LINEAR.name;
     public SSModes.SSEase EaseMode = SSModes.SSEase.LINEAR;
     public SSModes.SSRng RngMode = SSModes.SSRng.RANDOM;
     public float PerlinSpeedI = 0;
@@ -29,9 +31,9 @@ public class SSInstance {
     public SSInstance setPos1(Vector3f vec){Pos1=vec;return this;}
     public SSInstance setPos2(Vector3f vec){Pos2=vec;return this;}
 
-    public SSInstance setInCurve(Easing c){InCurve=c;return this;}
-    public SSInstance setOutCurve(Easing c){OutCurve=c;return this;}
-    public SSInstance setLinearCurve(Easing c){LinearCurve=c;return this;}
+    public SSInstance setInCurve(Easing c){InCurve=c.name;return this;}
+    public SSInstance setOutCurve(Easing c){OutCurve=c.name;return this;}
+    public SSInstance setLinearCurve(Easing c){LinearCurve=c.name;return this;}
 
     public void setPerlinSpeedI(float perlinSpeedI) {PerlinSpeedI = perlinSpeedI;}
     public float getPerlinSpeedI() {
@@ -56,12 +58,12 @@ public class SSInstance {
         float percentage = (progress / (float) duration);
         if (EaseMode == SSModes.SSEase.INOUT) {
             if (percentage >= 0.5f) {
-                return MathHelper.lerp(OutCurve.ease(percentage - 0.5f, 0, 1, 0.5f), int2, int1);
+                return MathHelper.lerp(Easing.valueOf(OutCurve).ease(percentage - 0.5f, 0, 1, 0.5f), int2, int1);
             } else {
-                return MathHelper.lerp(InCurve.ease(percentage, 0, 1, 0.5f), int1, int2);
+                return MathHelper.lerp(Easing.valueOf(InCurve).ease(percentage, 0, 1, 0.5f), int1, int2);
             }
         } else {
-            return MathHelper.lerp(LinearCurve.ease(percentage, 0, 1, 1), int1, int2);
+            return MathHelper.lerp(Easing.valueOf(LinearCurve).ease(percentage, 0, 1, 1), int1, int2);
         }
     }
 
@@ -71,6 +73,6 @@ public class SSInstance {
     }
 
     public String toStringy() {
-        return "SSInstance{progress=" + progress +", duration=" + duration + ", InCurve=" + InCurve.name + ", OutCurve=" + OutCurve.name + ", LinearCurve=" + LinearCurve.name + ", EaseMode=" + EaseMode.name() + ", RngMode=" + RngMode.name() + ", PerlinSpeedI=" + PerlinSpeedI + ", AffectedValues=" + AffectedValues.toString() + ", Rot1=" + Rot1.toString() + ", Rot2=" + Rot2.toString() + ", Pos1=" + Pos1.toString() + ", Pos2=" + Pos2.toString() + '}';
+        return "SSInstance{progress=" + progress +", duration=" + duration + ", InCurve=" + InCurve + ", OutCurve=" + OutCurve + ", LinearCurve=" + LinearCurve + ", EaseMode=" + EaseMode.name() + ", RngMode=" + RngMode.name() + ", PerlinSpeedI=" + PerlinSpeedI + ", AffectedValues=" + AffectedValues.toString() + ", Rot1=" + Rot1.toString() + ", Rot2=" + Rot2.toString() + ", Pos1=" + Pos1.toString() + ", Pos2=" + Pos2.toString() + '}';
     }
 }

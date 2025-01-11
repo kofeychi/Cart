@@ -1,27 +1,33 @@
 package dev.kofeychi.Cart.SSModule;
 
+import com.google.gson.JsonObject;
 import dev.kofeychi.Cart.Cart;
 import dev.kofeychi.Cart.Util.Easing;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.TntEntity;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import org.apache.logging.log4j.core.util.JsonUtils;
 import org.joml.Vector3f;
-import org.objectweb.asm.Type;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.joml.SimplexNoise.noise;
 
 public class SSHandler implements ClientModInitializer {
+    public static Identifier SSPacketID = Cart.of("sspackedjson");
     public static ArrayList<SSInstance> Instances = new ArrayList<>();
     public static Vector3f Rot=new Vector3f(),Pos=new Vector3f(),IRot=new Vector3f(),IPos=new Vector3f();
     public static float PerlinX,PerlinY,PerlinSpeed;
@@ -77,15 +83,15 @@ public class SSHandler implements ClientModInitializer {
         return MathHelper.lerp(Easing.CIRC_OUT.ease((float) a,0,1,1),3,1);
     }
     public static void tntmixinfunc(TntEntity entity){
-        Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50);
-        SSHandler.addInstance(
-                new PSI(120, SSModes.SSEase.LINEAR, SSModes.SSRng.RANDOM, new EnabledAffections("yyynnn"),entity.getPos(),5,40,Easing.QUAD_OUT)
-                        .setRot1(vec)
-                        .setRot2(new Vector3f(0, 0, 0))
-                        .setPos1(vec)
-                        .setPos2(new Vector3f(0, 0, 0))
-                        .setLinearCurve(Easing.QUAD_OUT)
-        );
+        Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50).mul(10);
+        Cart.SERVER.getPlayerManager().getPlayerList().forEach((spe)-> ServerPlayNetworking.send(spe,new SSPacket(Cart.GSON.toJson(new PSI(120, SSModes.SSEase.LINEAR, SSModes.SSRng.RANDOM, new EnabledAffections("nnnyyy"),entity.getPos(),5,40)
+                .setRot1(vec)
+                .setRot2(new Vector3f(0, 0, 0))
+                .setPos1(vec)
+                .setPos2(new Vector3f(0, 0, 0))
+                .setLinearCurve(Easing.QUAD_OUT)
+                ))
+        ));
     }
     public static Vector3f MakeSureNonNaN(Vector3f vec){
         if (Float.isNaN(vec.x)||10000<vec.x){
@@ -114,6 +120,19 @@ public class SSHandler implements ClientModInitializer {
     private static float test = 0;
     @Override
     public void onInitializeClient() {
+        ClientPlayNetworking.registerGlobalReceiver(SSPacket.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                String data = payload.data();
+                SSInstance ssi = Cart.GSON.fromJson(data, SSInstance.class);
+                PSI psi = Cart.GSON.fromJson(data, PSI.class);
+                if (Objects.equals(ssi.getType(), "SSInstance")){
+                    addInstance(ssi);
+                }
+                if (Objects.equals(ssi.getType(), "PSI")){
+                    addInstance(psi);
+                }
+            });
+        });
         ClientTickEvents.START_CLIENT_TICK.register((client -> {
             if (!isFrozen) {
                 tick();
