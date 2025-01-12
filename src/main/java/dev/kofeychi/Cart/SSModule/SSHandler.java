@@ -38,9 +38,10 @@ public class SSHandler implements ClientModInitializer {
 
     public static void render(Camera camera,Random rng){
         Camera = camera;
-        PerlinX += PerlinSpeed/50;
-        if (PerlinX >= 5) {PerlinX = -5;PerlinY += PerlinSpeed/50;}
-        if (PerlinY >= 5) {PerlinY = -5;}
+        float s = -((-Cart.CONFIG.SpeedOfPerlin - 100)/100+0.0001f);
+        PerlinX += PerlinSpeed/s;
+        if (PerlinX >= 50) {PerlinX = -50;PerlinY += PerlinSpeed/s;}
+        if (PerlinY >= 50) {PerlinY = -50;}
         random = rng;
         camera.setPos(camera.getPos());
         generate(rng);
@@ -83,36 +84,37 @@ public class SSHandler implements ClientModInitializer {
         return MathHelper.lerp(Easing.CIRC_OUT.ease((float) a,0,1,1),3,1);
     }
     public static void tntmixinfunc(TntEntity entity){
-        Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50).mul(10);
-        Cart.SERVER.getPlayerManager().getPlayerList().forEach((spe)-> ServerPlayNetworking.send(spe,new SSPacket(Cart.GSON.toJson(new PSI(120, SSModes.SSEase.LINEAR, SSModes.SSRng.RANDOM, new EnabledAffections("nnnyyy"),entity.getPos(),5,40)
+        Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50).mul(5);
+        Cart.SERVER.getPlayerManager().getPlayerList().forEach((spe)-> ServerPlayNetworking.send(spe,new SSPacket(Cart.GSON.toJson(new PSI(120, SSModes.SSEase.LINEAR, SSModes.SSRng.PERLIN, new EnabledAffections("nnnyyy"),entity.getPos(),5,15)
                 .setRot1(vec)
                 .setRot2(new Vector3f(0, 0, 0))
                 .setPos1(vec)
                 .setPos2(new Vector3f(0, 0, 0))
                 .setLinearCurve(Easing.QUAD_OUT)
-                ))
+                .setPerlinSpeedI(.5f)
+                ),"psi")
         ));
     }
     public static Vector3f MakeSureNonNaN(Vector3f vec){
-        if (Float.isNaN(vec.x)||10000<vec.x){
+        if (-10000>vec.x||10000<vec.x){
             vec.x = 0;
         }
-        if (Float.isNaN(vec.y)||10000<vec.y){
+        if (-10000>vec.y||10000<vec.y){
             vec.y = 0;
         }
-        if (Float.isNaN(vec.z)||10000<vec.z){
+        if (-10000>vec.z||10000<vec.z){
             vec.z = 0;
         }
         return vec;
     }
     public static Vec3d MakeSureNonNaN(Vec3d vec){
-        if (Double.isNaN(vec.x)||10000<vec.x){
+        if (-10000>vec.x||10000<vec.x){
             vec = new Vec3d(0, vec.y,vec.z);
         }
-        if (Double.isNaN(vec.y)||10000<vec.x){
+        if (-10000>vec.y||10000<vec.x){
             vec = new Vec3d(vec.x, 0,vec.z);
         }
-        if (Double.isNaN(vec.z)||10000<vec.x){
+        if (-10000>vec.z||10000<vec.x){
             vec = new Vec3d(vec.x, vec.y,0);
         }
         return vec;
@@ -122,13 +124,15 @@ public class SSHandler implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(SSPacket.ID, (payload, context) -> {
             context.client().execute(() -> {
-                String data = payload.data();
-                SSInstance ssi = Cart.GSON.fromJson(data, SSInstance.class);
-                PSI psi = Cart.GSON.fromJson(data, PSI.class);
-                if (Objects.equals(ssi.getType(), "SSInstance")){
+                char a = 39;
+                char b = 34;
+                String data = payload.data().replace(a,b);
+                SSInstance ssi = Cart.GSON.fromJson(data.replace(a,b), SSInstance.class);
+                PSI psi = Cart.GSON.fromJson(data.replace(a,b), PSI.class);
+                if (Objects.equals(payload.type(), "ssi")){
                     addInstance(ssi);
                 }
-                if (Objects.equals(ssi.getType(), "PSI")){
+                if (Objects.equals(payload.type(), "psi")){
                     addInstance(psi);
                 }
             });
@@ -179,6 +183,8 @@ public class SSHandler implements ClientModInitializer {
                     float eas = -Easing.CIRC_IN_OUT.ease(test,0,1,1)+1;
                     drawContext.drawBorder(a,a*10,a+1*30,a/2+1*27,0xFF0000FF);
                     drawContext.fill((int) (a+test*30), (int) ((a * 8) + b + (eas*30)),((int) (a+test*30))+1, ((int) ((a * 8) + b + (eas*30)))+1,0xFFFFFFFF);
+                    drawContext.drawText(MinecraftClient.getInstance().textRenderer, "px: " + PerlinX, a, a * 12 + b, 0xFFFFFFFF, false);
+                    drawContext.drawText(MinecraftClient.getInstance().textRenderer, "py: " + PerlinY, a, a * 13 + b, 0xFFFFFFFF, false);
                 }
                 });
     }
@@ -190,19 +196,19 @@ public class SSHandler implements ClientModInitializer {
     }
     public static Vector3f genRot(Random rng){
         return new Vector3f(
-                genVal(rng,IRot.x),
-                genVal(rng,IRot.y),
-                genVal(rng,IRot.z)
+                genVal(rng,IRot.x,.3f),
+                genVal(rng,IRot.y,.4f),
+                genVal(rng,IRot.z,.5f)
         );
     }
     public static Vector3f genPos(Random rng){
         return new Vector3f(
-                genVal(rng,IPos.x),
-                genVal(rng,IPos.y),
-                genVal(rng,IPos.z)
+                genVal(rng,IPos.x,.0f),
+                genVal(rng,IPos.y,.1f),
+                genVal(rng,IPos.z,.2f)
         );
     }
-    public static float genVal(Random rng,float val){
-        return MathHelper.nextFloat(rng,-val,val) + ((noise(PerlinX,PerlinY)*val)*PerlinSpeed);
+    public static float genVal(Random rng,float val,float pofs){
+        return !(PerlinSpeed != 0) ? MathHelper.nextFloat(rng,-val,val) : ((noise(PerlinX+pofs,PerlinY+pofs)*val)*PerlinSpeed);
     }
 }

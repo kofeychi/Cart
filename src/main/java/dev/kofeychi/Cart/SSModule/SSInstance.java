@@ -35,9 +35,9 @@ public class SSInstance {
     public SSInstance setOutCurve(Easing c){OutCurve=c.name;return this;}
     public SSInstance setLinearCurve(Easing c){LinearCurve=c.name;return this;}
 
-    public void setPerlinSpeedI(float perlinSpeedI) {PerlinSpeedI = perlinSpeedI;}
+    public SSInstance setPerlinSpeedI(float perlinSpeedI) {PerlinSpeedI = perlinSpeedI;return this;}
     public float getPerlinSpeedI() {
-        if (PerlinSpeedI == 0||RngMode == SSModes.SSRng.PERLIN) {
+        if (PerlinSpeedI == 0||RngMode == SSModes.SSRng.RANDOM) {
             return 1;
         } else {
             return PerlinSpeedI;

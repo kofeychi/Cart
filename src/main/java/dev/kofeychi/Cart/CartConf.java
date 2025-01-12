@@ -9,6 +9,7 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 public class CartConf implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 0,max = 100)
     public float ScreenShakeIntensity = 100;
+    public float SpeedOfPerlin = 100;
     @ConfigEntry.Gui.CollapsibleObject
     public DebugStuff Debug_Stuff = new DebugStuff();
     public static class DebugStuff {

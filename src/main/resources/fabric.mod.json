@@ -24,6 +24,7 @@
   "mixins": [
     "cart.mixins.json"
   ],
+  "accessWidener": "cart.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
