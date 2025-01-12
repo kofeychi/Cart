@@ -81,7 +81,7 @@ public class SSHandler implements ClientModInitializer {
     }
     public static double curved(double a){
         if (a >= 1) {a=1;}
-        return MathHelper.lerp(Easing.CIRC_OUT.ease((float) a,0,1,1),3,1);
+        return MathHelper.lerp(Easing.QUINTIC_OUT.ease((float) a,0,1,1),3,1);
     }
     public static void tntmixinfunc(TntEntity entity){
         Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50).mul(5);
@@ -119,7 +119,6 @@ public class SSHandler implements ClientModInitializer {
         }
         return vec;
     }
-    private static float test = 0;
     @Override
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(SSPacket.ID, (payload, context) -> {
@@ -155,8 +154,6 @@ public class SSHandler implements ClientModInitializer {
         });
             HudRenderCallback.EVENT.register((drawContext, tickCounter) -> {
                 if (isDebugRenderer) {
-                    if (test >= 1) {test = 0;}
-                    test += .01f;
                     int a = 8;
                     String data = "";
                     int i = 0;
@@ -180,9 +177,6 @@ public class SSHandler implements ClientModInitializer {
                     drawContext.drawText(MinecraftClient.getInstance().textRenderer, "IPos: " + IPos.toString(), a, a * 5 + b, 0xFFFFFFFF, false);
                     drawContext.drawText(MinecraftClient.getInstance().textRenderer, "Instances amount: " + (Instances.size()), a, a * 6 + b, 0xFFFFFFFF, false);
                     drawContext.drawText(MinecraftClient.getInstance().textRenderer, "ps: " + PerlinSpeed, a, a * 7 + b, 0xFFFFFFFF, false);
-                    float eas = -Easing.CIRC_IN_OUT.ease(test,0,1,1)+1;
-                    drawContext.drawBorder(a,a*10,a+1*30,a/2+1*27,0xFF0000FF);
-                    drawContext.fill((int) (a+test*30), (int) ((a * 8) + b + (eas*30)),((int) (a+test*30))+1, ((int) ((a * 8) + b + (eas*30)))+1,0xFFFFFFFF);
                     drawContext.drawText(MinecraftClient.getInstance().textRenderer, "px: " + PerlinX, a, a * 12 + b, 0xFFFFFFFF, false);
                     drawContext.drawText(MinecraftClient.getInstance().textRenderer, "py: " + PerlinY, a, a * 13 + b, 0xFFFFFFFF, false);
                 }
