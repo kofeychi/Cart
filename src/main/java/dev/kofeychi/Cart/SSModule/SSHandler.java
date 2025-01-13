@@ -35,6 +35,7 @@ public class SSHandler implements ClientModInitializer {
     public static boolean isFrozen = false;
     public static boolean isDebugRenderer = false;
     public static Camera Camera;
+    public static float PerlinRatio;
 
     public static void render(Camera camera,Random rng){
         Camera = camera;
@@ -62,7 +63,8 @@ public class SSHandler implements ClientModInitializer {
         SSHandler.isFrozen = Cart.CONFIG.Debug_Stuff.isInstancesFrozen;
         Cart.isUsingTntMixin = Cart.CONFIG.Debug_Stuff.isUsingTestTntMixin;
         float inten = Cart.CONFIG.ScreenShakeIntensity;
-        PerlinSpeed = checkif() ? (float) (Instances.stream().mapToDouble(SSInstance::getPerlinSpeedI).sum() / Instances.size()) : 0;
+        PerlinSpeed = checkif() ? (float) (Instances.stream().mapToDouble(SSInstance::getPerlinSpeedI).sum() / (Instances.size()+0.01f)) : 0.01f;
+        PerlinRatio = (float) (Instances.stream().mapToDouble(SSInstance::getPerlinRatio).sum() / (Instances.size()+0.01f))+0.01f;
         IRot = MakeSureNonNaN(new Vector3f(
                 (float) Math.pow(Instances.stream().mapToDouble(SSInstance::updRotX).sum(),curved(Instances.stream().mapToDouble(SSInstance::updRotX).sum()))*inten,
                 (float) Math.pow(Instances.stream().mapToDouble(SSInstance::updRotY).sum(),curved(Instances.stream().mapToDouble(SSInstance::updRotY).sum()))*inten,
@@ -84,8 +86,8 @@ public class SSHandler implements ClientModInitializer {
         return MathHelper.lerp(Easing.QUINTIC_OUT.ease((float) a,0,1,1),3,1);
     }
     public static void tntmixinfunc(TntEntity entity){
-        Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50).mul(5);
-        Cart.SERVER.getPlayerManager().getPlayerList().forEach((spe)-> ServerPlayNetworking.send(spe,new SSPacket(Cart.GSON.toJson(new PSI(120, SSModes.SSEase.LINEAR, SSModes.SSRng.PERLIN, new EnabledAffections("nnnyyy"),entity.getPos(),5,15)
+        Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50).mul(4);
+        Cart.SERVER.getPlayerManager().getPlayerList().forEach((spe)-> ServerPlayNetworking.send(spe,new SSPacket(Cart.GSON.toJson(new PSI(120, SSModes.SSEase.LINEAR, SSModes.SSRng.PERLIN, new EnabledAffections("nnyyyy"),entity.getPos(),5,15)
                 .setRot1(vec)
                 .setRot2(new Vector3f(0, 0, 0))
                 .setPos1(vec)
@@ -203,6 +205,6 @@ public class SSHandler implements ClientModInitializer {
         );
     }
     public static float genVal(Random rng,float val,float pofs){
-        return !(PerlinSpeed != 0) ? MathHelper.nextFloat(rng,-val,val) : ((noise(PerlinX+pofs,PerlinY+pofs)*val)*PerlinSpeed);
+        return (MathHelper.nextFloat(rng,-val,val)*PerlinRatio) + ((noise(PerlinX+pofs,PerlinY+pofs)*val)*PerlinSpeed)*(-PerlinRatio+1);
     }
 }

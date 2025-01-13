@@ -43,6 +43,9 @@ public class SSInstance {
             return PerlinSpeedI;
         }
     }
+    public float getPerlinRatio() {
+        return this.RngMode == SSModes.SSRng.PERLIN ? 1:0;
+    }
 
     public float updRotX(){return AffectedValues.RotX ? updateIntensity(Rot1.x, Rot2.x) : 0;}
     public float updRotY(){return AffectedValues.RotY ? updateIntensity(Rot1.y, Rot2.y) : 0;}
