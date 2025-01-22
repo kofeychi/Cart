@@ -1,15 +1,22 @@
 package dev.kofeychi.Cart.SSModule;
 
+import dev.kofeychi.Cart.Cart;
 import dev.kofeychi.Cart.Util.Easing;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
 import static dev.kofeychi.Cart.SSModule.SSHandler.Camera;
 
 public class PSI extends SSInstance{
+
     @Override
-    public String getType(){return typee;}
-    public String typee = "PSI";
+    public String getType(){return "PSI";}
     public final Vec3d position;
     public float falloffDistance;
     public float maxDistance;
@@ -42,5 +49,20 @@ public class PSI extends SSInstance{
     @Override
     public String toStringy() {
         return "PSI{progress=" + progress +", duration=" + duration + ", InCurve=" + InCurve + ", OutCurve=" + OutCurve + ", LinearCurve=" + LinearCurve + ", EaseMode=" + EaseMode.name() + ", RngMode=" + RngMode.name() + ", PerlinSpeedI=" + PerlinSpeedI + ", AffectedValues=" + AffectedValues.toString() + ", Rot1=" + Rot1.toString() + ", Rot2=" + Rot2.toString() + ", Pos1=" + Pos1.toString() + ", Pos2=" + Pos2.toString() + ", Position=" + position.toString() + ", Falloff=" + falloffDistance +", MaxDistance=" + maxDistance +'}';
+    }
+    @Override
+    public void DebugRender(MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers, double cameraX, double cameraY, double cameraZ){
+        VertexConsumer vc = vertexConsumers.getBuffer(RenderLayer.LINES);
+        float ps = 0.15f;
+        //pos
+        Vec3d positions = new Vec3d(cameraX,cameraY,cameraZ);
+        matrices.translate(
+                position.x - positions.x,
+                position.y - positions.y,
+                position.z - positions.z
+        );
+        WorldRenderer.drawBox(matrices,vc,-ps,-ps,-ps,+ps,+ps,+ps,1,0,0,1);
+        WorldRenderer.drawBox(matrices,vc,-ps-falloffDistance,-ps-falloffDistance,-ps-falloffDistance,+ps+falloffDistance,+ps+falloffDistance,+ps+falloffDistance,0,1,0,1);
+        WorldRenderer.drawBox(matrices,vc,-ps-maxDistance,-ps-maxDistance,-ps-maxDistance,+ps+maxDistance,+ps+maxDistance,+ps+maxDistance,0,0,1,1);
     }
 }

@@ -7,6 +7,7 @@
     "TestTntMixin"
   ],
   "client": [
+    "DebugRendererMixin",
     "CameraMixin"
   ],
   "injectors": {

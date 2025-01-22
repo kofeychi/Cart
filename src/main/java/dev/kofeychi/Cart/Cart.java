@@ -16,6 +16,7 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -41,11 +42,16 @@ public class Cart implements ModInitializer, ClientModInitializer {
     public static CartConf CONFIG;
     public static MinecraftServer SERVER;
     public static boolean isUsingTntMixin=false;
+    public static long rtime = 0;
     public static Identifier of(String n){
         return Identifier.of("cart",n);
     }
     @Override
     public void onInitialize() {
+        HudRenderCallback.EVENT.register(((drawContext, tickCounter) -> {
+            if (rtime >= 500000) {rtime = 0;}
+            rtime++;
+        }));
         ServerLifecycleEvents.SERVER_STARTING.register(server -> SERVER = server);
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> SERVER = null);
         PayloadTypeRegistry.playS2C().register(SSPacket.ID, SSPacket.CODEC);
@@ -55,6 +61,7 @@ public class Cart implements ModInitializer, ClientModInitializer {
             dispatcher.register(CommandManager.literal("cart").requires(source -> source.hasPermissionLevel(1))
                     .then(CommandManager.literal("debug").requires(source -> source.hasPermissionLevel(1))
                             .then(CommandManager.literal("freezessinstances").requires(source -> source.hasPermissionLevel(1)).then(CommandManager.argument("isFrozen", BoolArgumentType.bool()).executes(Cart::freezessinstances)))
+                            .then(CommandManager.literal("delinstances").requires(source -> source.hasPermissionLevel(1)).executes(Cart::delinstances))
                             .then(CommandManager.literal("ssdebugrender").requires(source -> source.hasPermissionLevel(1)).then(CommandManager.argument("isDebug", BoolArgumentType.bool()).executes(Cart::ssdebugrenderer)))
                             .then(CommandManager.literal("testTntMixin").requires(source -> source.hasPermissionLevel(1)).then(CommandManager.argument("isTntMixin", BoolArgumentType.bool()).executes(Cart::tntMixin)))
                             .then(CommandManager.literal("sendss").requires(source -> source.hasPermissionLevel(1)).then(CommandManager.argument("ssi", StringArgumentType.string()).then(CommandManager.argument("target", EntityArgumentType.players()).then(CommandManager.argument("isPSI", BoolArgumentType.bool()).executes(Cart::ssi)))))
@@ -69,6 +76,10 @@ public class Cart implements ModInitializer, ClientModInitializer {
         String type = !bo ? "ssi" : "psi";
         Collection<ServerPlayerEntity> players = EntityArgumentType.getPlayers(context,"target");
         players.forEach((spe)-> ServerPlayNetworking.send(spe,new SSPacket(ssi,type)));
+        return 1;
+    }
+    public static int delinstances(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        SSHandler.Instances.clear();
         return 1;
     }
     public static int freezessinstances(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {

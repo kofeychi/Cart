@@ -10,6 +10,10 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -49,8 +53,7 @@ public class SSHandler implements ClientModInitializer {
     }
     public static boolean checkif(){
         if (Instances.isEmpty()) {return false;}
-        int i = 0;
-        for(Iterator<SSInstance> var2 = Instances.iterator(); var2.hasNext(); i++) {
+        int i = 0;for(Iterator<SSInstance> var2 = Instances.iterator(); var2.hasNext(); i++) {
             SSInstance instance = (SSInstance) var2.next();
             if (instance.RngMode == SSModes.SSRng.PERLIN) {
                 return true;
@@ -78,6 +81,18 @@ public class SSHandler implements ClientModInitializer {
         Instances.removeIf(i -> i.progress - 0.5f >= i.duration);
     }
 
+    public static void DebugRenderer(MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers, double cameraX, double cameraY, double cameraZ) {
+
+        float val = 4;
+        int i = 0;for(Iterator<SSInstance> var2 = Instances.iterator(); var2.hasNext(); i++) {
+            SSInstance object = (SSInstance) var2.next();
+            if (object.getType()=="PSI") {
+                PSI inst = (PSI) object;
+                inst.DebugRender(matrices, vertexConsumers, cameraX, cameraY, cameraZ);
+            }
+        }
+    }
+
     public static void addInstance(SSInstance instance){
         Instances.add(instance);
     }
@@ -86,12 +101,12 @@ public class SSHandler implements ClientModInitializer {
         return MathHelper.lerp(Easing.QUINTIC_OUT.ease((float) a,0,1,1),3,1);
     }
     public static void tntmixinfunc(TntEntity entity){
-        Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50).mul(4);
-        Cart.SERVER.getPlayerManager().getPlayerList().forEach((spe)-> ServerPlayNetworking.send(spe,new SSPacket(Cart.GSON.toJson(new PSI(120, SSModes.SSEase.LINEAR, SSModes.SSRng.PERLIN, new EnabledAffections("nnyyyy"),entity.getPos(),5,15)
+        Vector3f vec = new Vector3f((float) 2 / 50, (float) 2 / 50, (float) 2 / 50).mul(1);
+        Cart.SERVER.getPlayerManager().getPlayerList().forEach((spe)-> ServerPlayNetworking.send(spe,new SSPacket(Cart.GSON.toJson(new PSI(1200, SSModes.SSEase.LINEAR, SSModes.SSRng.PERLIN, new EnabledAffections("yyyyyy"),entity.getPos(),5,15)
                 .setRot1(vec)
-                .setRot2(new Vector3f(0, 0, 0))
+                .setRot2(vec)
                 .setPos1(vec)
-                .setPos2(new Vector3f(0, 0, 0))
+                .setPos2(vec)
                 .setLinearCurve(Easing.QUAD_OUT)
                 .setPerlinSpeedI(.5f)
                 ),"psi")

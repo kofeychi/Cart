@@ -2,13 +2,14 @@ package dev.kofeychi.Cart.SSModule;
 
 import dev.kofeychi.Cart.Util.Easing;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import org.joml.Vector3f;
 
 public class SSInstance {
-    public String getType(){return type;}
-    public String type = "SSInstance";
+    public String getType(){return "SSInstance";}
     public int progress = 0,duration = 0;
     public String InCurve = Easing.LINEAR.name;
     public String OutCurve = Easing.LINEAR.name;
@@ -78,4 +79,5 @@ public class SSInstance {
     public String toStringy() {
         return "SSInstance{progress=" + progress +", duration=" + duration + ", InCurve=" + InCurve + ", OutCurve=" + OutCurve + ", LinearCurve=" + LinearCurve + ", EaseMode=" + EaseMode.name() + ", RngMode=" + RngMode.name() + ", PerlinSpeedI=" + PerlinSpeedI + ", AffectedValues=" + AffectedValues.toString() + ", Rot1=" + Rot1.toString() + ", Rot2=" + Rot2.toString() + ", Pos1=" + Pos1.toString() + ", Pos2=" + Pos2.toString() + '}';
     }
+    public void DebugRender(MatrixStack matrices, VertexConsumerProvider.Immediate vertexConsumers, double cameraX, double cameraY, double cameraZ){}
 }
